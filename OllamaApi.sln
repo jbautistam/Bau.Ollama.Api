@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ollama.TestConsole", "test\Ollama.TestConsole\Ollama.TestConsole.csproj", "{F12E0D01-A1F6-488C-B68F-3F29FBE13B7A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibOllama.Api", "src\LibOllama.Api\LibOllama.Api.csproj", "{2773AD70-228E-4539-BE9F-D3E93902714B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F12E0D01-A1F6-488C-B68F-3F29FBE13B7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F12E0D01-A1F6-488C-B68F-3F29FBE13B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F12E0D01-A1F6-488C-B68F-3F29FBE13B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F12E0D01-A1F6-488C-B68F-3F29FBE13B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2773AD70-228E-4539-BE9F-D3E93902714B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2773AD70-228E-4539-BE9F-D3E93902714B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2773AD70-228E-4539-BE9F-D3E93902714B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2773AD70-228E-4539-BE9F-D3E93902714B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0414F037-5EC9-4433-81EF-1917D0405E79}
+	EndGlobalSection
+EndGlobal
