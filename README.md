@@ -1,92 +1,69 @@
 # Bau.Ollama.Api
 
-Get up and running with large language models, locally.
-Run Llama 2, Code Llama, and other models. Customize and create your own.
+La API de **Ollama** es una interfaz de programación de aplicaciones (API) que permite acceder a modelos de 
+lenguaje de gran escala (LLM), como *Llama 2* y *Code Llama*, de forma local. 
 
-Get up and running with large language models locally.
+Esta librería permite el acceso a la API de **Ollama** utilizando C#.
 
-macOS
-Download
+## Preparación
 
-Windows
-Coming soon! For now, you can install Ollama on Windows via WSL2.
+Antes de utilizar la API, debemos preparar el entorno. En mi caso, suelo utilizar Docker que me parece la forma más cómoda de
+tener **Ollama** instalada en local.
 
-Linux & WSL2
-curl https://ollama.ai/install.sh | sh
-Manual install instructions
+En primer lugar, descargamos la imagen de **Ollama**:
 
-Docker
-The official Ollama Docker image ollama/ollama is available on Docker Hub.
-
-Quickstart
-To run and chat with Llama 2:
-
-ollama run llama2
-Model library
-Ollama supports a list of open-source models available on ollama.ai/library
-
-Here are some example open-source models that can be downloaded:
-
-Model	Parameters	Size	Download
-Llama 2	7B	3.8GB	ollama run llama2
-Mistral	7B	4.1GB	ollama run mistral
-Dolphin Phi	2.7B	1.6GB	ollama run dolphin-phi
-Phi-2	2.7B	1.7GB	ollama run phi
-Neural Chat	7B	4.1GB	ollama run neural-chat
-Starling	7B	4.1GB	ollama run starling-lm
-Code Llama	7B	3.8GB	ollama run codellama
-Llama 2 Uncensored	7B	3.8GB	ollama run llama2-uncensored
-Llama 2 13B	13B	7.3GB	ollama run llama2:13b
-Llama 2 70B	70B	39GB	ollama run llama2:70b
-Orca Mini	3B	1.9GB	ollama run orca-mini
-Vicuna	7B	3.8GB	ollama run vicuna
-LLaVA	7B	4.5GB	ollama run llava
-Note: You should have at least 8 GB of RAM available to run the 7B models, 16 GB to run the 13B models, and 32 GB to run the 33B models.
-
-https://github.com/jmorganca/ollama
-
-Modelos https://ollama.ai/library
-
-Ollama is now available as an official Docker image
-We are excited to share that Ollama is now available as an official Docker sponsored open-source image, making it simpler to get 
-up and running with large language models using Docker containers.
-
-With Ollama, all your interactions with large language models happen locally without sending private data to third-party services.
-
-On the Mac
-Ollama handles running the model with GPU acceleration. It provides both a simple CLI as 
-well as a REST API for interacting with your applications.
-
-To get started, simply download and install Ollama.
-
-We recommend running Ollama alongside Docker Desktop for macOS in order 
-for Ollama to enable GPU acceleration for models.
-
-On Linux
-Ollama can run with GPU acceleration inside Docker containers for Nvidia GPUs.
-
-To get started using the Docker image, please use the commands below.
-
-CPU only
+```sh
 docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+```
 
-Nvidia GPU
-Install the Nvidia container toolkit.
+Antes de poder llamar a la API, debemos indicar que se ejecute un modelo con el siguiente comando:
 
-Run Ollama inside a Docker container
-docker run -d --gpus=all -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-
-Run a model
-Now you can run a model like Llama 2 inside the container.
-
+```sh
 docker exec -it ollama ollama run llama2
-More models can be found on the Ollama library.
+```
 
-	Run a model
-		Now you can run a model like Llama 2 inside the container.
+Este comando ejecuta **Ollama** con el modelo *Llama 2*, pero **Ollama** nos permite ejecutar diferentes modelos de lenguaje. 
 
-		docker exec -it ollama ollama run llama2
+En concreto, en el momento de crear esta API, se podían utilizar estos modelos 
+(la lista actualizada está en la web de [Ollama](https://ollama.ai/library)):
 
+| Modelo             | Parámetros | Tamaño | Comando descarga en Docker   |
+|--------------------|:----------:|:------:|------------------------------|
+| Llama 2            | 7B         | 3.8GB  | ollama run llama2            |
+| Mistral            | 7B         | 4.1GB  | ollama run mistral           |
+| Dolphin Phi        | 2.7B       | 1.6GB  | ollama run dolphin-phi       |
+| Phi-2              | 2.7B       | 1.7GB  | ollama run phi               |
+| Neural Chat        | 7B         | 4.1GB  | ollama run neural-chat       |
+| Starling           | 7B         | 4.1GB  | ollama run starling-lm       |
+| Code Llama         | 7B         | 3.8GB  | ollama run codellama         |
+| Llama 2 Uncensored | 7B         | 3.8GB  | ollama run llama2-uncensored |
+| Llama 2 13B        | 13B        | 7.3GB  | ollama run llama2:13b        |
+| Llama 2 70B        | 70B        | 39GB   | ollama run llama2:70b        |
+| Orca Mini          | 3B         | 1.9GB  | ollama run orca-mini         |
+| Vicuna             | 7B         | 3.8GB  | ollama run vicuna            |
+| LLaVA              | 7B         | 4.5GB  | ollama run llava             |
+
+**Nota:** para ejecutar los modelos 7B necesitarás 8GB de memoria RAM, los modelos 13B necesitan 16GB de memoria RAM y
+para los modelos 33B necesitarás 32GB de memoria.
+
+Así, por ejemplo, para ejecutar el modelo **Mistral** debemos ejecutar el siguiente comando:
+
+```sh
+docker exec -it ollama ollama run mistral
+```
+
+Si queremos que el cliente de Docker acceda a la GPU de NVidia, debemos instalar *Nvidia container toolkit* y ejecutar el siguiente comando:
+
+```sh
+docker run -d --gpus=all -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+```
+
+
+## Ejemplo
+
+Dentro del repositorio, encontramos una [consola de test](https://github.com/jbautistam/Bau.Ollama.Api/tree/main/test/Ollama.TestConsole) para comunicarnos con la API de Ollama.
+
+Aquí copio una sección de `program.cs`:
 
 ```csharp
 CancellationToken cancellationToken = CancellationToken.None;
@@ -94,7 +71,7 @@ Ollama.TestConsole.Controller.OllamaChatController manager = new("http://localho
 
 // Asigna el manejador de eventos
 manager.ChatReceived += (sender, args) => Console.Write(args.Message);
-// Indica que se traten la respuesta seg�n se reciba
+// Indica que se trate la respuesta como un Stream
 manager.TreatResponseAsStream = true;
 
 Console.Clear();
@@ -114,7 +91,7 @@ else
 			foreach (Bau.Libraries.LibOllama.Api.Models.ListModelsResponseItem item in manager.Models)
 				Console.WriteLine($"\t{item.Name}");
 		}
-		// Muestra el modelo que se est� utilizando
+		// Muestra el modelo que se está utilizando
 		Console.WriteLine($"You are talking to {manager.Model} now.");
 		// Procesa los input del usuario
 		prompt = GetPrompt();
@@ -123,9 +100,9 @@ else
 			// Si realmente ha escrito algo
 			if (!string.IsNullOrWhiteSpace(prompt))
 			{
-				// Cambia el color para la salida del 
+				// Cambia el color para la salida de la consola
 				Console.ForegroundColor = ConsoleColor.Cyan;
-				// Llama a Ollama para obtener la respuesta
+				// Llama a la API para obtener la respuesta
 				try
 				{
 					await manager.PromptAsync(prompt, cancellationToken);
@@ -136,7 +113,7 @@ else
 					Console.WriteLine("Error when call to Ollama");
 					Console.WriteLine($"Error: {exception.Message}");
 				}
-				// Salta de l�nea
+				// Salta de línea
 				Console.WriteLine();
 				// Obtiene un nuevo prompt
 				prompt = GetPrompt();
@@ -145,13 +122,5 @@ else
 		// Finaliza el proceso
 		Console.ForegroundColor = ConsoleColor.White;
 		Console.WriteLine("Bye, bye");
-}
-
-// Obtiene una entrada del usuario
-string? GetPrompt()
-{
-	Console.ForegroundColor = ConsoleColor.White;
-	Console.Write("> ");
-	return Console.ReadLine();
 }
 ```
