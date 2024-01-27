@@ -12,7 +12,7 @@ el mismo funcionamiento.
 En realidad, prácticamente lo único que he hecho ha sido mejorar la estructura interna de la librería extrayendo clases
 y cambiando el sistema de comunicaciones con `HttpClient` para que sea más compacta.
 
-En este [vídeo](https://github.com/jbautistam/Bau.Ollama.Api/blob/317dfb563d10417b1c8d9fc260fa4773bb22141c/docs/Ollama.mp4)
+En este [vídeo](docs/Ollama.mp4)
 , podéis ver un ejemplo de uso de **Ollama** para obtener información de **Entity Framework** (aunque los modelos de lenguaje son
 bastante generales, no tienen problema en mostrar información sobre código):
 
@@ -20,7 +20,7 @@ bastante generales, no tienen problema en mostrar información sobre código):
   <source src="https://github.com/jbautistam/Bau.Ollama.Api/blob/317dfb563d10417b1c8d9fc260fa4773bb22141c/docs/Ollama.mp4" type="video/mp4">
 </video>
 
-![](docs/Ollama.mp4)
+![]()
 
 
 https://github.com/jbautistam/Bau.Ollama.Api/docs/Ollama.mp4
