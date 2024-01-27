@@ -19,7 +19,7 @@ bastante generales, no tienen problema en mostrar información sobre código):
   <source src="docs/Ollama.mp4" type="video/mp4">
 </video>
 
-dos/Ollama.mp4
+https://github.com/jbautistam/Bau.Ollama.Api/docs/Ollama.mp4
 
 ## Preparación
 
