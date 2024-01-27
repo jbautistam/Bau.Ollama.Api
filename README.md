@@ -1,16 +1,29 @@
 # Bau.Ollama.Api
 
-La API de **Ollama** es una interfaz de programación de aplicaciones (API) que permite acceder a modelos de 
-lenguaje de gran escala (LLM), como *Llama 2* y *Code Llama*, de forma local. 
+Desde que aparecieron las inteligencias artificiales generativas y los LLM, supe que era algo que quería probar pero el problema era la instalación
+en mi ordenador local: la mayoría de esas IA son bastante complicadas de instalar y mantener. Hasta que conocí **Ollama**.
 
-Esta librería permite el acceso a la API de **Ollama** utilizando C#.
+**[Ollama](https://ollama.ai)** es un sistema LLM que nos permite utilizar **Docker** para instalarla en local. Además dispone de una API Rest bastante
+sencilla que nos permite acceder a modelos de lenguaje de gran escala (LLM), como *Llama 2* y *Code Llama*, de forma local. 
+
+Esta librería permite el acceso a la API de **Ollama** utilizando C# basada en [OllamaSharp](https://github.com/awaescher/OllamaSharp), con 
+el mismo funcionamiento.
+
+En realidad, prácticamente lo único que he hecho ha sido mejorar la estructura interna de la librería extrayendo clases
+y cambiando el sistema de comunicaciones con `HttpClient` para que sea más compacta.
+
+En este vídeo, podéis ver un ejemplo de uso de **Ollama** para obtener información de **Entity Framework** (aunque los modelos de lenguaje son
+bastante generales, no tienen problema en mostrar información sobre código):
+
+<video width="320" height="240" controls>
+  <source src="dos/Ollama.mp4" type="video/mp4">
+</video>
 
 ## Preparación
 
-Antes de utilizar la API, debemos preparar el entorno. En mi caso, suelo utilizar Docker que me parece la forma más cómoda de
-tener **Ollama** instalada en local.
+Antes de utilizar la API, debemos preparar el entorno.
 
-En primer lugar, descargamos la imagen de **Ollama**:
+En primer lugar, descargamos la imagen Docker de **Ollama**:
 
 ```sh
 docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
@@ -58,10 +71,136 @@ Si queremos que el cliente de Docker acceda a la GPU de NVidia, debemos instalar
 docker run -d --gpus=all -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 ```
 
+## Utilización de la librería
+
+Una vez tengamos **Ollama** instalado y ejecutando en local, podemos utilizar el código de la librería para mandar prompts a la API y recibir las
+respuestas.
+
+Por supuesto, si tenemos un servidor accesible en la Web con **Ollama** instalado también podemos acceder a la API utilizando su URL.
+
+### Conexión con Ollama
+
+```csharp
+using Bau.Libraries.LibOllama.Api;
+using Bau.Libraries.LibOllama.Api.Models;
+
+// Crea el manager
+OllamaManager manager = new(new Uri("http://localhost:11434"), TimeSpan.FromMinutes(5));
+```
+
+### Visualización de los modelos
+
+El método `GetModelsAsync` obtiene la lista de modelos existentes en nuestro local (o en la dirección establecida al crear `OllamaManager`):
+
+```csharp
+ListModelsResponse? modelsResponse = await manager.GetModelsAsync(cancellationToken);
+
+	if (modelsResponse is not null && modelsResponse.Models.Count > 0)
+		foreach (Bau.Libraries.LibOllama.Api.Models.ListModelsResponseItem item in manager.Models)
+			Console.WriteLine($"\t{item.Name}");
+	else
+		Console.WriteLine("No models found");
+```
+
+### Prompt
+
+Existen dos formas de enviar un prompt a **Ollama** y obtener la respuesta.
+
+La primera de ellas, es utilizar el método `GetCompletionAsync`:
+
+```csharp
+string prompt = "Hello";
+string model = "llama2";
+ConversationContext? context = null;
+ConversationContextWithResponse response = await Manager.GetCompletionAsync(prompt, model, context, cancellationToken);
+
+	// Guarda el contexto
+	context = new ConversationContext(response.Context);
+```
+
+Este método recibe el `prompt` que es el texto que deseamos que responda el LLM, `model` identifica el modelo y `context` es el contexto de la conversación (que
+debemos guardar para posteriores consultas si queremos que **Ollama** recuerde el contexto).
+
+La propiedad `Response` de `ConversationContextWithResponse` contiene la respuesta de **Ollama** a nuestra solicitud (la respuesta al `prompt` para entendernos).
+
+La otra forma es utilizar el modelo de `Stream` de la API para recoger la respuesta según se vaya
+procesando. Este método se llama `StreamCompletionAsync` y recibe prácticamente los mismos parámetros:
+
+```csharp
+_context = await Manager.StreamCompletionAsync(prompt, Model, _context, _streamer, cancellationToken);
+```
+
+El parámetro adicional `_streamer` es la clase que va a tratar la respuesta según la vaya recibiendo de la API. En este caso
+guardamos el contexto para poder reutilizarlo durante la conversación en una variable global del controlador:
+
+```csharp
+private ConversationContext? _context = null;
+private EventStreamer _streamer;
+```
+
+La clase `EventStreamer` es la que trata los datos recibidos de la API implementando la interface `IResponseStream` de
+la API. En el ejemplo está definida como:
+
+```csharp
+using Bau.Libraries.LibOllama.Api.Models;
+using Bau.Libraries.LibOllama.Api.Streamer;
+
+namespace Ollama.TestConsole.Controller;
+
+/// <summary>
+///		Intérprete de las salidas por stream de Ollama
+/// </summary>
+internal class EventStreamer : IResponseStreamer<GenerateCompletionResponseStream>
+{
+	internal EventStreamer(OllamaChatController manager)
+	{
+		Manager = manager;
+	}
+
+	/// <summary>
+	///		Trata el stream
+	/// </summary>
+	public void Stream(GenerateCompletionResponseStream? stream)
+	{
+		Manager.TreatStream(stream);
+	}
+
+	/// <summary>
+	///		Manager de Ollama
+	/// </summary>
+	internal OllamaChatController Manager { get; }
+}
+```
+
+Esta clase, llama a `ObamaChatController` según va recibiendo la respuesta de **Ollama**.
+El método `TreatStream` de ese controlador, simplemente lanza un evento para que la aplicación principal
+puede escribir el resultado en la consola:
+
+```csharp
+/// <summary>
+///		Trata el stream recibido
+/// </summary>
+internal void TreatStream(GenerateCompletionResponseStream? stream)
+{
+	if (stream is not null)
+		RaiseResponseEvent(stream.Response, stream.Done);
+	else
+		RaiseResponseEvent("Stream lost", true);
+}
+
+/// <summary>
+///		Lanza el evento de respuesta
+/// </summary>
+private void RaiseResponseEvent(string message, bool isEnd)
+{
+	ChatReceived?.Invoke(this, new PromptResponseArgs(message, isEnd));
+}
+```
 
 ## Ejemplo
 
-Dentro del repositorio, encontramos una [consola de test](https://github.com/jbautistam/Bau.Ollama.Api/tree/main/test/Ollama.TestConsole) para comunicarnos con la API de Ollama.
+Dentro del repositorio, encontramos una [consola de test](https://github.com/jbautistam/Bau.Ollama.Api/tree/main/test/Ollama.TestConsole) 
+como prueba para comunicarnos con la API de Ollama.
 
 Aquí copio una sección de `program.cs`:
 
