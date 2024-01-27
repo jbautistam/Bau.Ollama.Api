@@ -12,8 +12,8 @@ el mismo funcionamiento.
 En realidad, prácticamente lo único que he hecho ha sido mejorar la estructura interna de la librería extrayendo clases
 y cambiando el sistema de comunicaciones con `HttpClient` para que sea más compacta.
 
-En este [vídeo](https://www.youtube.com/watch?v=rJBwdx3KS6E)), podéis ver un ejemplo de uso de **Ollama** para obtener información de **Entity Framework** (aunque los modelos de lenguaje son
-bastante generales, no tienen problema en mostrar información sobre código):
+En este [vídeo](https://www.youtube.com/watch?v=rJBwdx3KS6E), podéis ver un ejemplo de uso de **Ollama** para obtener información de 
+**Entity Framework** (aunque los modelos de lenguaje son bastante generales, no tienen problema en mostrar información sobre código).
 
 ## Preparación
 
