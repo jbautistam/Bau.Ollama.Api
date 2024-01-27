@@ -16,8 +16,10 @@ En este vídeo, podéis ver un ejemplo de uso de **Ollama** para obtener informa
 bastante generales, no tienen problema en mostrar información sobre código):
 
 <video width="320" height="240" controls>
-  <source src="/docs/Ollama.mp4" type="video/mp4">
+  <source src="https://github.com/jbautistam/Bau.Ollama.Api/blob/317dfb563d10417b1c8d9fc260fa4773bb22141c/docs/Ollama.mp4" type="video/mp4">
 </video>
+
+
 
 https://github.com/jbautistam/Bau.Ollama.Api/docs/Ollama.mp4
 
